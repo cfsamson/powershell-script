@@ -1,4 +1,3 @@
-
 extern crate powershell_script;
 use std::io::{stdin, Read};
 
@@ -15,6 +14,5 @@ fn main() {
         Err(e) => {
             println!("Error: {}", e);
         }
-
     }
 }

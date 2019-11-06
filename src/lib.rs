@@ -1,18 +1,18 @@
 //! # Windows Powershell script runner
-//! 
+//!
 //! This crate is pretty basic. It uses `std::process::Command` to pipe commands
 //! to PowerShell. In addition to that there is a convenient wrapper around `process::Output`
 //! especially tailored towards the usecase of running Windows PowerShell commands.
-//! 
+//!
 //! ## Example
-//! 
+//!
 //! I recommend that you write the commands to a `*.ps` file to be able to take advantage
 //! of existing tools to create the script.
-//! 
+//!
 //! This example creates a shortcut of `notepad.exe` to the desktop.
-//! 
+//!
 //! _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\notepad.lnk" instead._
-//! 
+//!
 //! **In `script.ps`**
 //! ```ps
 //! $SourceFileLocation="C:\Windows\notepad.exe"
@@ -22,12 +22,12 @@
 //! $Shortcut.TargetPath=$SourceFileLocation
 //! $Shortcut.Save()
 //! ```
-//! 
+//!
 //! **In `main.rs`**
 //! ```rust
 //! extern crate powershell_script;
 //! use std::io::{stdin, Read};
-//! 
+//!
 //! // Creates a shortcut to notpad on the desktop
 //! fn main() {
 //!     let create_shortcut = include_str!("script.ps");
@@ -41,32 +41,31 @@
 //!     }
 //! }
 //! ```
-//! 
+//!
 //! You can of course provide the commands as a string literal instead. Just beware that
 //! we run each `line` as a separate command.
-//! 
+//!
 //! The flag `print_commands` can be set to `true` if you want each
 //! command to be printed to the `stdout` of the main process as theyre run which
 //! can be useful for debugging scripts or displaying the progress.
-//! 
+//!
 //! ## Compatability
-//! 
+//!
 //! This is only tested on Windows and most likely will only work on Windows. It should
 //! be possible to support PowerShell Core on Linux with only minor adjustments so leave
 //! a feature request if there is any interest in that.
-//! 
+//!
 
-
-use std::process::{Stdio, Command, Output as ProcessOutput};
-use std::io::{self, Write};
 use std::fmt;
+use std::io::{self, Write};
+use std::process::{Command, Output as ProcessOutput, Stdio};
 
 type Result<T> = std::result::Result<T, PsError>;
 
 /// Runs the script and returns an instance of `std::process::Output` on
 /// success. The flag `print_commands` can be set to `true` if you want each
 /// command to be printed to the `stdout` of the main process as theyre run.
-/// 
+///
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
@@ -74,12 +73,14 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdin(Stdio::piped());
     let mut process = cmd.args(&["-Command", "-"]).spawn()?;
     let stdin = process.stdin.as_mut().expect("Pipe failure");
-    
+
     for line in script.lines() {
-        if print_commands { println!("{}", line) };
+        if print_commands {
+            println!("{}", line)
+        };
         writeln!(stdin, "{}", line)?;
     }
-    
+
     let output = process.wait_with_output()?;
 
     Ok(output)
@@ -91,7 +92,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
 /// for display. The flag `print_commands` can be set to `true` if you want each
 /// command to be printed to the `stdout` of the main process as theyre run. Useful
 /// for debugging scripts.
-/// 
+///
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run(script: &str, print_commands: bool) -> Result<Output> {
@@ -103,7 +104,6 @@ pub fn run(script: &str, print_commands: bool) -> Result<Output> {
     } else {
         Err(PsError::Powershell(output))
     }
-    
 }
 
 #[derive(Debug, Clone)]
@@ -144,7 +144,6 @@ impl From<ProcessOutput> for Output {
             stdout,
             stderr,
         }
-
     }
 }
 
@@ -169,7 +168,7 @@ pub enum PsError {
     Io(io::Error),
 }
 
-impl std::error::Error for PsError { }
+impl std::error::Error for PsError {}
 
 impl fmt::Display for PsError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -187,9 +186,6 @@ impl From<io::Error> for PsError {
         PsError::Io(io)
     }
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
