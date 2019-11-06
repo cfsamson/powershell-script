@@ -45,6 +45,10 @@ fn main() {
 You can of course provide the commands as a string literal instead. Just beware that
 we run each `line` as a separate command.
 
+The flag `print_commands` can be set to `true` if you want each
+command to be printed to the `stdout` of the main process as theyre run which
+can be useful for debugging scripts or displaying the progress.
+
 ## Compatability
 
 This is only tested on Windows and most likely will only work on Windows. It should

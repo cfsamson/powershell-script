@@ -45,6 +45,10 @@
 //! You can of course provide the commands as a string literal instead. Just beware that
 //! we run each `line` as a separate command.
 //! 
+//! The flag `print_commands` can be set to `true` if you want each
+/// command to be printed to the `stdout` of the main process as theyre run which
+/// can be useful for debugging scripts or displaying the progress.
+//! 
 //! ## Compatability
 //! 
 //! This is only tested on Windows and most likely will only work on Windows. It should
@@ -60,7 +64,8 @@ use std::fmt;
 type Result<T> = std::result::Result<T, PsError>;
 
 /// Runs the script and returns an instance of `std::process::Output` on
-/// success.
+/// success. The flag `print_commands` can be set to `true` if you want each
+/// command to be printed to the `stdout` of the main process as theyre run.
 /// 
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
@@ -83,7 +88,9 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
 /// Runs a script in PowerShell. Returns an instance of `Output`. In the case of
 /// a failure when running the script it returns an `PsError::Powershell(Output)`
 /// which holds the output object containing the captures of `stderr` and `stdout`
-/// for display.
+/// for display. The flag `print_commands` can be set to `true` if you want each
+/// command to be printed to the `stdout` of the main process as theyre run. Useful
+/// for debugging scripts.
 /// 
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
