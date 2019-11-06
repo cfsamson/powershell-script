@@ -1,9 +1,69 @@
+//! # Windows Powershell script runner
+//! 
+//! This crate is pretty basic. It uses `std::process::Command` to pipe commands
+//! to PowerShell. In addition to that there is a convenient wrapper around `process::Output`
+//! especially tailored towards the usecase of running Windows PowerShell commands.
+//! 
+//! ## Example
+//! 
+//! I recommend that you write the commands to a `*.ps` file to be able to take advantage
+//! of existing tools to create the script.
+//! 
+//! This example creates a shortcut of `notepad.exe` to the desktop.
+//! 
+//! _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\notepad.lnk" instead._
+//! 
+//! **In `script.ps`**
+//! ```ps
+//! $SourceFileLocation="C:\Windows\notepad.exe"
+//! $ShortcutLocation="$env:UserProfile\Desktop\notepad.lnk"
+//! $WScriptShell=New-Object -ComObject WScript.Shell
+//! $Shortcut=$WScriptShell.CreateShortcut($ShortcutLocation)
+//! $Shortcut.TargetPath=$SourceFileLocation
+//! $Shortcut.Save()
+//! ```
+//! 
+//! **In `main.rs`**
+//! ```rust
+//! extern crate powershell_script;
+//! use std::io::{stdin, Read};
+//! 
+//! // Creates a shortcut to notpad on the desktop
+//! fn main() {
+//!     let create_shortcut = include_str!("script.ps");
+//!     match powershell_script::run(create_shortcut, true) {
+//!         Ok(output) => {
+//!             println!("{}", output);
+//!         }
+//!         Err(e) => {
+//!             println!("Error: {}", e);
+//!         }
+//!     }
+//! }
+//! ```
+//! 
+//! You can of course provide the commands as a string literal instead. Just beware that
+//! we run each `line` as a separate command.
+//! 
+//! ## Compatability
+//! 
+//! This is only tested on Windows and most likely will only work on Windows. It should
+//! be possible to support PowerShell Core on Linux with only minor adjustments so leave
+//! a feature request if there is any interest in that.
+//! 
+
+
 use std::process::{Stdio, Command, Output as ProcessOutput};
 use std::io::{self, Write};
 use std::fmt;
 
 type Result<T> = std::result::Result<T, PsError>;
 
+/// Runs the script and returns an instance of `std::process::Output` on
+/// success.
+/// 
+/// ## Panics
+/// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     let mut cmd = Command::new("PowerShell");
     cmd.stdin(Stdio::piped());
@@ -20,6 +80,13 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     Ok(output)
 }
 
+/// Runs a script in PowerShell. Returns an instance of `Output`. In the case of
+/// a failure when running the script it returns an `PsError::Powershell(Output)`
+/// which holds the output object containing the captures of `stderr` and `stdout`
+/// for display.
+/// 
+/// ## Panics
+/// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run(script: &str, print_commands: bool) -> Result<Output> {
     let proc_output = run_raw(script, print_commands)?;
 
@@ -40,10 +107,12 @@ pub struct Output {
 }
 
 impl Output {
+    /// Returns the parsed output of the `stdout` capture of the child process
     pub fn stdout(&self) -> Option<&str> {
         self.stdout.as_ref().map(|s| s.as_str())
     }
 
+    /// Returns the parsed output of the `stdout` capture of the child process
     pub fn stderr(&self) -> Option<&str> {
         self.stderr.as_ref().map(|s| s.as_str())
     }
@@ -87,7 +156,9 @@ impl fmt::Display for Output {
 
 #[derive(Debug)]
 pub enum PsError {
+    /// An error in the PowerShell script.
     Powershell(Output),
+    /// An I/O error related to the child process.
     Io(io::Error),
 }
 
