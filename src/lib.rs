@@ -46,8 +46,8 @@
 //! we run each `line` as a separate command.
 //! 
 //! The flag `print_commands` can be set to `true` if you want each
-/// command to be printed to the `stdout` of the main process as theyre run which
-/// can be useful for debugging scripts or displaying the progress.
+//! command to be printed to the `stdout` of the main process as theyre run which
+//! can be useful for debugging scripts or displaying the progress.
 //! 
 //! ## Compatability
 //! 
