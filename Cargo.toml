@@ -1,0 +1,18 @@
+[package]
+name = "powershell_script"
+version = "0.1.0"
+authors = ["Carl Fredrik Samson <cf@samson.no>"]
+edition = "2018"
+repository = "https://github.com/cfsamson/powershell-script"
+documentation = "https://docs.rs/powershell_script/"
+readme = "README.md"
+license = "MIT"
+keywords = ["powershell", "script", "scripting", "ps"]
+categories = ["command-line-utilities"]
+description = """
+A library for running Windows PowerShell scripts
+"""
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
