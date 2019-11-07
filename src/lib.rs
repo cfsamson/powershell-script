@@ -25,8 +25,7 @@
 //!
 //! **In `main.rs`**
 //! ```rust, ignore
-//! extern crate powershell_script;
-//! use std::io::{stdin, Read};
+//! use crate powershell_script;
 //!
 //! // Creates a shortcut to notpad on the desktop
 //! fn main() {
