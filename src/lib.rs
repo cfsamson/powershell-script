@@ -64,7 +64,7 @@ type Result<T> = std::result::Result<T, PsError>;
 
 /// Runs the script and returns an instance of `std::process::Output` on
 /// success. The flag `print_commands` can be set to `true` if you want each
-/// command to be printed to the `stdout` of the main process as theyre run.
+/// command to be printed to the `stdout` of the main process as they're run.
 ///
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
@@ -92,7 +92,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
 /// a failure when running the script it returns an `PsError::Powershell(Output)`
 /// which holds the output object containing the captures of `stderr` and `stdout`
 /// for display. The flag `print_commands` can be set to `true` if you want each
-/// command to be printed to the `stdout` of the main process as theyre run. Useful
+/// command to be printed to the `stdout` of the main process as they're run. Useful
 /// for debugging scripts.
 ///
 /// ## Panics
