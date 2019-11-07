@@ -11,7 +11,7 @@
 //!
 //! This example creates a shortcut of `notepad.exe` to the desktop.
 //!
-//! _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\notepad.lnk" instead._
+//! _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\" instead._
 //!
 //! **In `script.ps`**
 //! ```ps
@@ -24,7 +24,7 @@
 //! ```
 //!
 //! **In `main.rs`**
-//! ```rust
+//! ```rust, ignore
 //! extern crate powershell_script;
 //! use std::io::{stdin, Read};
 //!
@@ -46,7 +46,7 @@
 //! we run each `line` as a separate command.
 //!
 //! The flag `print_commands` can be set to `true` if you want each
-//! command to be printed to the `stdout` of the main process as theyre run which
+//! command to be printed to the `stdout` of the main process as they're run which
 //! can be useful for debugging scripts or displaying the progress.
 //!
 //! ## Compatability
@@ -71,6 +71,8 @@ type Result<T> = std::result::Result<T, PsError>;
 pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     let mut cmd = Command::new("PowerShell");
     cmd.stdin(Stdio::piped());
+    cmd.stdout(Stdio::piped());
+    cmd.stderr(Stdio::piped());
     let mut process = cmd.args(&["-Command", "-"]).spawn()?;
     let stdin = process.stdin.as_mut().expect("Pipe failure");
 
@@ -95,6 +97,16 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
 ///
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
+///
+/// ## Example
+///
+/// ```rust
+/// fn main() {
+///     let script = r#"echo "hello world""#;
+///     let output = powershell_script::run(script, false).unwrap();
+///     assert_eq!(output.stdout().unwrap(), "hello world\r\n");
+/// }
+/// ```
 pub fn run(script: &str, print_commands: bool) -> Result<Output> {
     let proc_output = run_raw(script, print_commands)?;
 
@@ -184,13 +196,5 @@ impl fmt::Display for PsError {
 impl From<io::Error> for PsError {
     fn from(io: io::Error) -> PsError {
         PsError::Io(io)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }

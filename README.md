@@ -46,7 +46,7 @@ You can of course provide the commands as a string literal instead. Just beware 
 we run each `line` as a separate command.
 
 The flag `print_commands` can be set to `true` if you want each
-command to be printed to the `stdout` of the main process as theyre run which
+command to be printed to the `stdout` of the main process as they're run which
 can be useful for debugging scripts or displaying the progress.
 
 ## Compatability
