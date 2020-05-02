@@ -73,7 +73,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
     let mut process = cmd.args(&["-Command", "-"]).spawn()?;
-    let stdin = process.stdin.as_mut().expect("Pipe failure");
+    let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
         if print_commands {
@@ -177,6 +177,8 @@ pub enum PsError {
     Powershell(Output),
     /// An I/O error related to the child process.
     Io(io::Error),
+    /// Failed to retrieve a handle to `stdin` for the child process
+    ChildStdinNotFound,
 }
 
 impl std::error::Error for PsError {}
@@ -187,6 +189,7 @@ impl fmt::Display for PsError {
         match self {
             Powershell(out) => write!(f, "{}", out)?,
             Io(e) => write!(f, "{}", e)?,
+            ChildStdinNotFound => write!(f, "Failed to acquire a handle to stdin in the child process.")?,
         }
         Ok(())
     }
