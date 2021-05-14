@@ -48,11 +48,12 @@
 //! command to be printed to the `stdout` of the main process as they're run which
 //! can be useful for debugging scripts or displaying the progress.
 //!
-//! ## Compatability
+//! ## Features and compatability
 //!
-//! This is only tested on Windows and most likely will only work on Windows. It should
-//! be possible to support PowerShell Core on Linux with only minor adjustments so leave
-//! a feature request if there is any interest in that.
+//! On Windows it defaults to using the PowerShell which ships with Windows, but you
+//! can also run scripts using PowerShell Core by enabling the `core` feature.
+//!
+//! On all other operating systems it will run scripts using PowerShell core.
 //!
 
 use std::fmt;
