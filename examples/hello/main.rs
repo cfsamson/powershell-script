@@ -2,8 +2,8 @@ extern crate powershell_script;
 
 /// Print 'Hello' to console.
 fn main() {
-    let create_shortcut = include_str!("script.ps1");
-    match powershell_script::run(create_shortcut, false) {
+    let hello = include_str!("script.ps1");
+    match powershell_script::run(hello, false) {
         Ok(output) => {
             eprint!("{}", output);
         }
