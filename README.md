@@ -47,11 +47,11 @@ The flag `print_commands` can be set to `true` if you want each
 command to be printed to the `stdout` of the main process as they're run which
 can be useful for debugging scripts or displaying the progress.
 
-## Compatability
+## Features and compatability
+The default usage is running PowerShell scripts on Windows, but you can also
+run scripts using PowerShell Core on Macos and Linux.
 
-This is only tested on Windows and most likely will only work on Windows. It should
-be possible to support PowerShell Core on Linux with only minor adjustments so leave
-a feature request if there is any interest in that.
+To use this crate to run scripts on PowerShell Core, enable the `core` feature.
 
 ## Contributing
 
