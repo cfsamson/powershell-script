@@ -68,7 +68,14 @@ type Result<T> = std::result::Result<T, PsError>;
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
+    #[cfg(all(not(feature = "core"), windows))]      
+    // Windows PowerShell
     let mut cmd = Command::new("PowerShell");
+
+    #[cfg(any(feature = "core", not(windows)))]    
+    // PowerShell Core
+    let mut cmd = Command::new("pwsh");
+
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
