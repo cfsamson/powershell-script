@@ -80,7 +80,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
-    let mut process = cmd.args(&["-Command", "-"]).spawn()?;
+    let mut process = cmd.args(&["-NoProfile", "-Command", "-"]).spawn()?;
     let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
@@ -111,7 +111,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
 /// fn main() {
 ///     let script = r#"echo "hello world""#;
 ///     let output = powershell_script::run(script, false).unwrap();
-///     assert_eq!(output.stdout().unwrap(), "hello world\r\n");
+///     assert_eq!(output.stdout().unwrap().trim(), "hello world");
 /// }
 /// ```
 pub fn run(script: &str, print_commands: bool) -> Result<Output> {
