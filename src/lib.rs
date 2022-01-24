@@ -56,8 +56,9 @@
 //! On all other operating systems it will run scripts using PowerShell core.
 //!
 
-use std::fmt;
+use std::{fmt, env};
 use std::io::{self, Write};
+use std::path::Path;
 use std::process::{Command, Output as ProcessOutput, Stdio};
 
 type Result<T> = std::result::Result<T, PsError>;
@@ -69,13 +70,7 @@ type Result<T> = std::result::Result<T, PsError>;
 /// ## Panics
 /// If there is an error retrieving a handle to `stdin` in the child process.
 pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
-    #[cfg(all(not(feature = "core"), windows))]
-    // Windows PowerShell
-    let mut cmd = Command::new("PowerShell");
-
-    #[cfg(any(feature = "core", not(windows)))]
-    // PowerShell Core
-    let mut cmd = Command::new("pwsh");
+    let mut cmd = Command::new(get_powershell_path()?);
 
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
@@ -123,6 +118,58 @@ pub fn run(script: &str, print_commands: bool) -> Result<Output> {
     } else {
         Err(PsError::Powershell(output))
     }
+}
+
+fn get_powershell_path() -> Result<String> {
+    // Get name of a script 
+
+    #[cfg(all(not(feature = "core"), windows))]
+    // Windows PowerShell
+    let powershell_name = "PowerShell";
+
+    #[cfg(any(feature = "core", not(windows)))]
+    // PowerShell Core
+    let powershell_name = "pwsh";
+
+    // Preferred option: use the powershell installation that is on path
+    if is_program_on_path(powershell_name).unwrap() {
+        return Ok(powershell_name.to_string())
+    }
+
+    // Backup option for windows, because cmd apparently ignores powershell on path: Try powershell's default installation path
+    if std::env::consts::OS == "windows" {
+        let system_root = match env::var("SYSTEMROOT")  {
+            Ok(x) => x,
+            Err(_e) => return Err(PsError::PowershellNotFound)
+        };
+        let path_candidate = Path::new(&system_root).join(r#"System32\WindowsPowerShell\v1.0\powershell.exe"#);
+        return match path_candidate.exists() {
+            true => Ok(path_candidate.to_string_lossy().to_string()),
+            false => Err(PsError::PowershellNotFound)
+        }
+    }
+
+    // If none of the above worked then we must give up
+    return Err(PsError::PowershellNotFound);
+}
+
+fn is_program_on_path(program_name: &str) -> Option<bool> {
+    // Check whether there is a program called "program name" on the system path
+    let path_splitter = match std::env::consts::OS {
+        "windows" => ';',
+        _ => ':'
+    };
+    let system_path = match env::var("PATH")  {
+        Ok(x) => x,
+        Err(_e) => return None
+    };
+    for path_dir in system_path.split(path_splitter) {
+        let path = std::path::Path::new(path_dir).join(&program_name);
+        if path.exists() {
+            return Some(true);
+        }
+    }
+    return Some(false);
 }
 
 #[derive(Debug, Clone)]
@@ -185,6 +232,8 @@ pub enum PsError {
     Powershell(Output),
     /// An I/O error related to the child process.
     Io(io::Error),
+    // Failed to find PowerShell in this system
+    PowershellNotFound,
     /// Failed to retrieve a handle to `stdin` for the child process
     ChildStdinNotFound,
 }
@@ -197,6 +246,7 @@ impl fmt::Display for PsError {
         match self {
             Powershell(out) => write!(f, "{}", out)?,
             Io(e) => write!(f, "{}", e)?,
+            PowershellNotFound => write!(f, "Failed to find powershell on this system")?,
             ChildStdinNotFound => write!(f, "Failed to acquire a handle to stdin in the child process.")?,
         }
         Ok(())
