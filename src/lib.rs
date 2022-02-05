@@ -75,7 +75,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
-    let mut process = cmd.args(&["-NoProfile", "-Command", "-"]).spawn()?;
+    let mut process = cmd.args(&["-NoProfile", "-WindowStyle", "Hidden", "-Command", "-"]).spawn()?;
     let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
