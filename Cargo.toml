@@ -1,6 +1,6 @@
 [package]
 name = "powershell_script"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Carl Fredrik Samson <cf@samson.no>"]
 edition = "2018"
 repository = "https://github.com/cfsamson/powershell-script"
