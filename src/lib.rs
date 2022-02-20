@@ -60,6 +60,7 @@ use std::{fmt, env};
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::{Command, Output as ProcessOutput, Stdio};
+use std::os::windows::process::CommandExt;
 
 type Result<T> = std::result::Result<T, PsError>;
 
@@ -75,7 +76,14 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
-    let mut process = cmd.args(&["-NoProfile", "-WindowStyle", "Hidden", "-Command", "-"]).spawn()?;
+    let mut process = cmd.args(&["-NoProfile", "-Command", "-"]);
+    
+    if (std::env::consts::OS == "windows") {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        process.creation_flags(CREATE_NO_WINDOW).spawn()?;
+    } else {
+        process.spawn()?;
+    }
     let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
