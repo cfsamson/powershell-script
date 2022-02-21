@@ -76,14 +76,16 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
-    let mut process = cmd.args(&["-NoProfile", "-Command", "-"]);
+
+    let os = std::env::consts::OS;
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+    let mut process =
+        if os == "windows" {
+            cmd.args(&["-NoProfile", "-Command", "-"]).creation_flags(CREATE_NO_WINDOW).spawn()?
+        } else {
+            cmd.args(&["-NoProfile", "-Command", "-"]).spawn()?
+        };
     
-    if (std::env::consts::OS == "windows") {
-        const CREATE_NO_WINDOW: u32 = 0x08000000;
-        process.creation_flags(CREATE_NO_WINDOW).spawn()?;
-    } else {
-        process.spawn()?;
-    }
     let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
