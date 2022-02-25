@@ -59,8 +59,7 @@
 use std::{fmt, env};
 use std::io::{self, Write};
 use std::path::Path;
-use std::process::{Command, Output as ProcessOutput, Stdio};
-use std::os::windows::process::CommandExt;
+use std::process::{Command, Output as ProcessOutput, Stdio, Child};
 
 type Result<T> = std::result::Result<T, PsError>;
 
@@ -77,15 +76,7 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
 
-    let os = std::env::consts::OS;
-    const CREATE_NO_WINDOW: u32 = 0x08000000;
-    let mut process =
-        if os == "windows" {
-            cmd.args(&["-NoProfile", "-Command", "-"]).creation_flags(CREATE_NO_WINDOW).spawn()?
-        } else {
-            cmd.args(&["-NoProfile", "-Command", "-"]).spawn()?
-        };
-    
+    let mut process = get_process(cmd)?;
     let stdin = process.stdin.as_mut().ok_or(PsError::ChildStdinNotFound)?;
 
     for line in script.lines() {
@@ -98,6 +89,21 @@ pub fn run_raw(script: &str, print_commands: bool) -> Result<ProcessOutput> {
     let output = process.wait_with_output()?;
 
     Ok(output)
+}
+
+#[cfg(target_family = "windows")]
+fn get_process(mut cmd: Command) -> io::Result<Child> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+    cmd.args(&["-NoProfile", "-Command", "-"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+}
+
+#[cfg(target_family = "unix")]
+fn get_process(mut cmd: Command) -> io::Result<Child> {
+    cmd.args(&["-NoProfile", "-Command", "-"]).spawn()
 }
 
 /// Runs a script in PowerShell. Returns an instance of `Output`. In the case of
@@ -131,7 +137,7 @@ pub fn run(script: &str, print_commands: bool) -> Result<Output> {
 }
 
 fn get_powershell_path() -> Result<String> {
-    // Get name of a script 
+    // Get name of a script
 
     #[cfg(all(not(feature = "core"), windows))]
     // Windows PowerShell
