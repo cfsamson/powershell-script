@@ -61,7 +61,23 @@ use std::io::{self, Write};
 use std::path::Path;
 use std::process::{Command, Output as ProcessOutput, Stdio, Child};
 
+mod builder;
+
 type Result<T> = std::result::Result<T, PsError>;
+
+pub struct PsScript {
+
+}
+
+impl PsScript {
+    pub fn run(&self) -> Result<Output> {
+        todo!()
+    }
+
+    pub fn run_raw(&self) -> Result<ProcessOutput> {
+        todo!()
+    }
+}
 
 /// Runs the script and returns an instance of `std::process::Output` on
 /// success. The flag `print_commands` can be set to `true` if you want each
