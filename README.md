@@ -47,10 +47,32 @@ The flag `print_commands` can be set to `true` if you want each
 command to be printed to the `stdout` of the main process as they're run which
 can be useful for debugging scripts or displaying the progress.
 
+## Use the `PsScriptBuilder` for better control
+
+Instead of running a script using `powershell_script::run()` you can use
+`PsScriptBuilder` to configure several options:
+
+```rust
+use powershell_script::PsScriptBuilder;
+
+fn main() {
+    let ps = PsScriptBuilder::new()
+        .no_profile(true)
+        .non_interactive(true)
+        .hidden(false)
+        .print_commands(false)
+        .build();
+    let output = ps.run(r#"echo "hello world""#).unwrap();
+
+    assert!(output.stdout().unwrap().contains("hello world"));
+}
+```
+
 ## Features and compatability
 
 On Windows it defaults to using the PowerShell which ships with Windows, but you
-can also run scripts using PowerShell Core by enabling the `core` feature.
+can also run scripts using PowerShell Core on Windows by enabling the
+`core` feature.
 
 On all other operating systems it will run scripts using PowerShell core.
 
