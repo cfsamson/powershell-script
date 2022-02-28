@@ -70,11 +70,7 @@ pub struct PsScript {
 }
 
 impl PsScript {
-    pub fn run(&self) -> Result<Output> {
-        todo!()
-    }
-
-    pub fn run_raw(&self) -> Result<ProcessOutput> {
+    pub fn run(&self, script: &str) -> Result<Output> {
         todo!()
     }
 }
