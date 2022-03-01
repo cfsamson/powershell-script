@@ -4,7 +4,7 @@ use std::io::{stdin, Read};
 /// Creates a shortcut to notpad on the desktop
 fn main() {
     let create_shortcut = include_str!("script.ps");
-    match powershell_script::run(create_shortcut, true) {
+    match powershell_script::run(create_shortcut) {
         Ok(output) => {
             println!("{}", output);
             println!("Press ENTER to continue...");
