@@ -14,6 +14,7 @@ This example creates a shortcut of `notepad.exe` to the desktop.
 _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\" instead._
 
 **In `script.ps`**
+
 ```ps
 $SourceFileLocation="C:\Windows\notepad.exe"
 $ShortcutLocation="$env:UserProfile\Desktop\notepad.lnk"
@@ -24,12 +25,13 @@ $Shortcut.Save()
 ```
 
 **In `main.rs`**
+
 ```rust
 use powershell_script;
 
 fn main() {
     let create_shortcut = include_str!("script.ps");
-    match powershell_script::run(create_shortcut, true) {
+    match powershell_script::run(create_shortcut) {
         Ok(output) => {
             println!("{}", output);
         }
