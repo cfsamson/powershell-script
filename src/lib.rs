@@ -98,7 +98,7 @@ type Result<T> = std::result::Result<T, PsError>;
 
 #[cfg(target_family = "unix")]
 pub use target::unix::PsScript;
-/// Test
+
 #[cfg(target_family = "windows")]
 pub use target::windows::PsScript;
 
