@@ -1,5 +1,8 @@
 use std::{process, fmt};
 
+/// A convenient wrapper around `process::Output` which indicates if the
+/// script ran successfully or not and gives easy access to both the utf-8
+/// parsed output of `stdout` or `stderr`.
 #[derive(Debug, Clone)]
 pub struct Output {
     inner: process::Output,
@@ -16,7 +19,7 @@ impl Output {
         }
     }
 
-    /// Returns the parsed output of the `stdout` capture of the child process
+    /// Returns the parsed output of the `stderr` capture of the child process
     pub fn stderr(&self) -> Option<String> {
         if self.inner.stderr.is_empty() {
             None
@@ -28,6 +31,11 @@ impl Output {
     /// Returns the raw `process::Output` type
     pub fn into_inner(self) -> process::Output {
         self.inner
+    }
+
+    /// Whether the script ran successfully or not
+    pub fn success(&self) -> bool {
+        self.success
     }
 }
 

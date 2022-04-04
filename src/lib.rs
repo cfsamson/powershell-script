@@ -48,18 +48,40 @@
 //! command to be printed to the `stdout` of the main process as they're run which
 //! can be useful for debugging scripts or displaying the progress.
 //!
+//! ## Using `PsScriptBuilder` for better control
+//!
+//! Instead of running a script using `powershell_script::run()` you can use
+//! `PsScriptBuilder` to configure several options:
+//!
+//! ```
+//! use powershell_script::PsScriptBuilder;
+//!
+//! fn main() {
+//!     let ps = PsScriptBuilder::new()
+//!         .no_profile(true)
+//!         .non_interactive(true)
+//!         .hidden(false)
+//!         .print_commands(false)
+//!         .build();
+//!     let output = ps.run(r#"echo "hello world""#).unwrap();
+//!
+//!     assert!(output.stdout().unwrap().contains("hello world"));
+//! }
+//! ```
+//!
 //! ## Features and compatability
 //!
 //! On Windows it defaults to using the PowerShell which ships with Windows, but you
-//! can also run scripts using PowerShell Core by enabling the `core` feature.
+//! can also run scripts using PowerShell Core on Windows by enabling the
+//! `core` feature.
 //!
 //! On all other operating systems it will run scripts using PowerShell core.
 //!
 
 mod builder;
 mod error;
-mod target;
 mod output;
+mod target;
 
 // Note: PowerShell Core can be isntalled on windows as well so we can't simply
 // discriminate based on target family.
@@ -72,18 +94,15 @@ const POWERSHELL_NAME: &str = "PowerShell";
 /// PowerShell Core
 const POWERSHELL_NAME: &str = "pwsh";
 
-
 type Result<T> = std::result::Result<T, PsError>;
 
+#[cfg(target_family = "unix")]
+pub use target::unix::PsScript;
 /// Test
 #[cfg(target_family = "windows")]
 pub use target::windows::PsScript;
-#[cfg(target_family = "unix")]
-pub use target::unix::PsScript;
 
-pub use {error::PsError, output::Output, builder::PsScriptBuilder};
-
-
+pub use {builder::PsScriptBuilder, error::PsError, output::Output};
 
 /// Runs a script in PowerShell. Returns an instance of `Output`. In the case of
 /// a failure when running the script it returns an `PsError::Powershell(Output)`
@@ -106,14 +125,5 @@ pub use {error::PsError, output::Output, builder::PsScriptBuilder};
 /// ```
 ///
 pub fn run(script: &str) -> Result<Output> {
-    let default = PsScriptBuilder::default().build();
-    default.run(script)
+    PsScriptBuilder::default().build().run(script)
 }
-
-
-
-
-
-
-
-
