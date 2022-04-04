@@ -48,7 +48,7 @@
 //! command to be printed to the `stdout` of the main process as they're run which
 //! can be useful for debugging scripts or displaying the progress.
 //!
-//! ## Using `PsScriptBuilder` for better control
+//! ## Use the `PsScriptBuilder` for better control
 //!
 //! Instead of running a script using `powershell_script::run()` you can use
 //! `PsScriptBuilder` to configure several options:
