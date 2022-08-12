@@ -11,8 +11,6 @@
 //!
 //! This example creates a shortcut of `notepad.exe` to the desktop.
 //!
-//! _NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\" instead._
-//!
 //! **In `script.ps`**
 //! ```ps
 //! $SourceFileLocation="C:\Windows\notepad.exe"
