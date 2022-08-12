@@ -11,13 +11,11 @@ of existing tools to create the script.
 
 This example creates a shortcut of `notepad.exe` to the desktop.
 
-_NB. If you use OneDrive chances are that your desktop is located at "$env:UserProfile\OneDrive\Desktop\" instead._
-
 **In `script.ps`**
 
 ```ps
 $SourceFileLocation="C:\Windows\notepad.exe"
-$ShortcutLocation="$env:UserProfile\Desktop\notepad.lnk"
+$ShortcutLocation=[Environment]::GetFolderPath("Desktop")+"\notepad.lnk"
 $WScriptShell=New-Object -ComObject WScript.Shell
 $Shortcut=$WScriptShell.CreateShortcut($ShortcutLocation)
 $Shortcut.TargetPath=$SourceFileLocation

@@ -16,7 +16,7 @@
 //! **In `script.ps`**
 //! ```ps
 //! $SourceFileLocation="C:\Windows\notepad.exe"
-//! $ShortcutLocation="$env:UserProfile\Desktop\notepad.lnk"
+//! $ShortcutLocation=[Environment]::GetFolderPath("Desktop")+"\notepad.lnk"
 //! $WScriptShell=New-Object -ComObject WScript.Shell
 //! $Shortcut=$WScriptShell.CreateShortcut($ShortcutLocation)
 //! $Shortcut.TargetPath=$SourceFileLocation
