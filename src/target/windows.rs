@@ -29,7 +29,8 @@ impl PsScript {
     }
 
     fn run_raw(&self, script: &str) -> Result<process::Output> {
-        let mut cmd = Command::new(get_powershell_path()?);
+        let pws_path = get_powershell_path()?;
+        let mut cmd = Command::new(pws_path);
 
         cmd.stdin(Stdio::piped());
         cmd.stdout(Stdio::piped());
@@ -62,12 +63,15 @@ fn is_program_on_path(program_name: &str) -> Option<bool> {
         Ok(x) => x,
         Err(_e) => return None,
     };
+    
     for path_dir in system_path.split(PATH_SPLITTER) {
         let path = std::path::Path::new(path_dir).join(&program_name);
+        
         if path.exists() {
             return Some(true);
         }
     }
+    
     return Some(false);
 }
 

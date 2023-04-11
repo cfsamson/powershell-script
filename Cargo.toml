@@ -1,6 +1,6 @@
 [package]
 name = "powershell_script"
-version = "1.0.4"
+version = "1.1.0"
 authors = ["Carl Fredrik Samson <cf@samson.no>"]
 edition = "2018"
 repository = "https://github.com/cfsamson/powershell-script"
@@ -16,6 +16,7 @@ A library for running Windows PowerShell scripts
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+
 # Use PowerShell Core instead of Windows Powershell.
 core = []
 
