@@ -86,11 +86,11 @@ mod target;
 
 #[cfg(all(not(feature = "core"), windows))]
 /// Windows PowerShell
-const POWERSHELL_NAME: &str = "PowerShell";
+const POWERSHELL_NAME: &str = "PowerShell.exe";
 
 #[cfg(any(feature = "core", not(windows)))]
 /// PowerShell Core
-const POWERSHELL_NAME: &str = "pwsh";
+const POWERSHELL_NAME: &str = "pwsh.exe";
 
 type Result<T> = std::result::Result<T, PsError>;
 
