@@ -81,6 +81,6 @@ On all other operating systems it will run scripts using PowerShell core.
 Right now this is only meant as a convenient wrapper for running PowerShell scripts,
 and I've been thinking about creating a `utils` crate with common tasks on Windows
 like creating a shortcut to a file (symlinking requires administrative privileges)
-but that will be better off in a separate create so this can focus on running scripts.
+but that will be better off in a separate crate so this can focus on running scripts.
 
 Any pull requests with bugfixes or efficiency improvements is greatly appreciated.
