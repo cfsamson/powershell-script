@@ -1,5 +1,6 @@
 use std::{
     env,
+    ffi::OsString,
     io::Write,
     process::{self, Command, Stdio},
 };
@@ -9,7 +10,7 @@ use crate::{error::PsError, output::Output, Result, POWERSHELL_NAME};
 const PATH_SPLITTER: char = ':';
 
 pub struct PsScript {
-    pub(crate) args: Vec<&'static str>,
+    pub(crate) args: Vec<OsString>,
     pub(crate) hidden: bool,
     pub(crate) print_commands: bool,
 }

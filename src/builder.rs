@@ -1,11 +1,14 @@
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    ffi::{OsStr, OsString},
+};
 
 use crate::PsScript;
 
 /// Builds a `PsScript` instance with configurable options for running your
 /// script.
 pub struct PsScriptBuilder {
-    args: VecDeque<&'static str>,
+    args: VecDeque<OsString>,
     no_profile: bool,
     non_interactive: bool,
     hidden: bool,
@@ -49,14 +52,30 @@ impl PsScriptBuilder {
         self
     }
 
+    /// Adds an argument to pass to the PowerShell script.
+    pub fn arg<S: AsRef<OsStr>>(mut self, arg: S) -> Self {
+        self.args.push_back(arg.as_ref().to_os_string());
+        self
+    }
+
+    // Adds multiple arguments to pass to the PowerShell script.
+    pub fn args<I, S>(mut self, args: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
+        self.args.extend(args.into_iter().map(|s| s.as_ref().to_os_string()));
+        self
+    }
+
     pub fn build(self) -> PsScript {
         let mut args = self.args;
         if self.non_interactive {
-            args.push_front("-NonInteractive");
+            args.push_front("-NonInteractive".into());
         }
 
         if self.no_profile {
-            args.push_front("-NoProfile");
+            args.push_front("-NoProfile".into());
         }
 
         PsScript {
@@ -73,8 +92,8 @@ impl Default for PsScriptBuilder {
     /// options set to `true` and `print_commands` set to `false`.
     fn default() -> Self {
         let mut args = VecDeque::new();
-        args.push_back("-Command");
-        args.push_back("-");
+        args.push_back("-Command".into());
+        args.push_back("-".into());
 
         Self {
             args,
